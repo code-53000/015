@@ -119,11 +119,14 @@ export default function ColorPalettePanel() {
         ) : (
           <div className="grid grid-cols-1 gap-1.5">
             {filtered.map((c) => (
-              <button
+              <div
                 key={c.id}
                 onClick={() => setSelected(c.id)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === "Enter") setSelected(c.id); }}
                 className={clsx(
-                  "group w-full flex items-center gap-2 p-2 rounded-lg border transition-all text-left",
+                  "group w-full flex items-center gap-2 p-2 rounded-lg border transition-all text-left cursor-pointer",
                   selectedId === c.id
                     ? "bg-stitch-50 border-stitch-300 shadow-sm"
                     : "bg-white/60 border-linen-300 hover:bg-white hover:border-sienna-300"
@@ -154,12 +157,12 @@ export default function ColorPalettePanel() {
                   </div>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     {c.inStock ? (
-                      <span className="inline-flex items-center gap-0.5 text-[10px text-sienna-500">
+                      <span className="inline-flex items-center gap-0.5 text-[10px] text-sienna-500">
                         <PackageOpen className="w-2.5 h-2.5 text-sienna-400" />
                         有库存
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-0.5 text-[10px text-stitch-400">
+                      <span className="inline-flex items-center gap-0.5 text-[10px] text-stitch-400">
                         <Package className="w-2.5 h-2.5" />
                         缺货
                       </span>
@@ -207,7 +210,7 @@ export default function ColorPalettePanel() {
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
-              </button>
+              </div>
             ))}
           </div>
         )}

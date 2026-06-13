@@ -53,7 +53,6 @@ export const useSchemeStore = create<SchemeState>((set, get) => ({
         ? get().schemes.find((s) => s.id === opts.existingId)
         : undefined;
       const record: Omit<Scheme, "id"> & { id?: number } = {
-        id: opts.existingId ?? undefined,
         name: name.trim() || "未命名方案",
         thumbnail: opts.thumbnail,
         gridCols: opts.cols,
@@ -64,6 +63,9 @@ export const useSchemeStore = create<SchemeState>((set, get) => ({
         createdAt: existing?.createdAt ?? now,
         updatedAt: now,
       };
+      if (opts.existingId) {
+        record.id = opts.existingId;
+      }
       const id = await dbSaveScheme(record);
       await get().fetchAll();
       return id;

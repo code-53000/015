@@ -15,28 +15,33 @@ interface StitchDB extends DBSchema {
 }
 
 const DB_NAME = "stitch-design-db";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 let dbPromise: Promise<IDBPDatabase<StitchDB>> | null = null;
 
 function getDB(): Promise<IDBPDatabase<StitchDB>> {
   if (!dbPromise) {
     dbPromise = openDB<StitchDB>(DB_NAME, DB_VERSION, {
-      upgrade(db) {
-        if (!db.objectStoreNames.contains("schemes")) {
-          const schemeStore = db.createObjectStore("schemes", {
-            keyPath: "id",
-            autoIncrement: true,
-          });
-          schemeStore.createIndex("by-updatedAt", "updatedAt");
-          schemeStore.createIndex("by-name", "name");
+      upgrade(db, oldVersion) {
+        if (oldVersion < 1) {
+          if (!db.objectStoreNames.contains("schemes")) {
+            const schemeStore = db.createObjectStore("schemes", {
+              keyPath: "id",
+              autoIncrement: true,
+            });
+            schemeStore.createIndex("by-updatedAt", "updatedAt");
+            schemeStore.createIndex("by-name", "name");
+          }
+          if (!db.objectStoreNames.contains("colors")) {
+            const colorStore = db.createObjectStore("colors", {
+              keyPath: "id",
+            });
+            colorStore.createIndex("by-brand", "brand");
+            colorStore.createIndex("by-code", "code");
+          }
         }
-        if (!db.objectStoreNames.contains("colors")) {
-          const colorStore = db.createObjectStore("colors", {
-            keyPath: "id",
-          });
-          colorStore.createIndex("by-brand", "brand");
-          colorStore.createIndex("by-code", "code");
+        if (oldVersion < 2) {
+          void db;
         }
       },
     });
@@ -57,11 +62,12 @@ export async function getScheme(id: number): Promise<Scheme | undefined> {
 
 export async function saveScheme(scheme: Omit<Scheme, "id"> & { id?: number }): Promise<number> {
   const db = await getDB();
-  if (scheme.id) {
+  if (scheme.id != null && scheme.id > 0) {
     await db.put("schemes", scheme as Scheme);
     return scheme.id;
   }
-  const id = await db.add("schemes", scheme as Scheme);
+  const { id: _id, ...rest } = scheme as Scheme & { id?: number };
+  const id = await db.add("schemes", rest as Omit<Scheme, "id">);
   return Number(id);
 }
 
