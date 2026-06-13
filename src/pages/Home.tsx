@@ -55,29 +55,8 @@ export default function Home() {
     () => () => {
       const off = document.createElement("canvas");
       const r = new CanvasRenderer(off);
-      r.resize(120, 120);
-      const vp = (() => {
-        const maxSide = Math.max(cols, rows);
-        const cellSize = Math.floor((120 - 16) / maxSide);
-        const totalW = cols * cellSize;
-        const totalH = rows * cellSize;
-        return {
-          scale: cellSize,
-          offsetX: (120 - totalW) / 2,
-          offsetY: (120 - totalH) / 2,
-        };
-      })();
       const colorMap = new Map(colors.map((c) => [c.id, c]));
-      r.render({
-        viewport: vp,
-        cols,
-        rows,
-        cells,
-        colorMap,
-        hoveredCell: null,
-        showStitchMark: false,
-      });
-      return off.toDataURL("image/png");
+      return r.generateThumbnail(cells, cols, rows, colorMap, 160);
     },
     [cols, rows, cells, colors]
   );

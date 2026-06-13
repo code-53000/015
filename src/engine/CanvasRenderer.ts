@@ -106,8 +106,14 @@ export class CanvasRenderer {
   private drawCell(col: number, row: number, vp: CanvasViewport, color: string, showMark: boolean) {
     const ctx = this.ctx;
     const g = this.gridToScreen(col, row, vp);
-    const px = Math.max(1, Math.floor(vp.scale / 16));
 
+    if (vp.scale < 3) {
+      ctx.fillStyle = color;
+      ctx.fillRect(g.x, g.y, g.size, g.size);
+      return;
+    }
+
+    const px = Math.max(1, Math.floor(vp.scale / 16));
     ctx.fillStyle = color;
     ctx.fillRect(g.x + px, g.y + px, g.size - px * 2, g.size - px * 2);
 
@@ -205,11 +211,14 @@ export class CanvasRenderer {
     ctx.fillRect(0, 0, size, size);
 
     const maxSide = Math.max(cols, rows);
-    const cellSize = Math.floor((size - 8) / maxSide);
+    const padding = size > 60 ? 8 : 4;
+    let cellSize = Math.floor((size - padding * 2) / maxSide);
+    cellSize = Math.max(1, cellSize);
+
     const totalW = cols * cellSize;
     const totalH = rows * cellSize;
-    const ox = (size - totalW) / 2;
-    const oy = (size - totalH) / 2;
+    const ox = Math.floor((size - totalW) / 2);
+    const oy = Math.floor((size - totalH) / 2);
 
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
@@ -221,6 +230,26 @@ export class CanvasRenderer {
             ctx.fillRect(ox + c * cellSize, oy + r * cellSize, cellSize, cellSize);
           }
         }
+      }
+    }
+
+    if (cellSize >= 3) {
+      ctx.strokeStyle = "rgba(179,147,100,0.2)";
+      ctx.lineWidth = 1;
+      const every = Math.max(1, Math.round(10 / cellSize));
+      for (let c = 0; c <= cols; c += every * 5) {
+        const x = ox + c * cellSize + 0.5;
+        ctx.beginPath();
+        ctx.moveTo(x, oy);
+        ctx.lineTo(x, oy + totalH);
+        ctx.stroke();
+      }
+      for (let r = 0; r <= rows; r += every * 5) {
+        const y = oy + r * cellSize + 0.5;
+        ctx.beginPath();
+        ctx.moveTo(ox, y);
+        ctx.lineTo(ox + totalW, y);
+        ctx.stroke();
       }
     }
 
