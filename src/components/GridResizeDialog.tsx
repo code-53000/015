@@ -4,7 +4,7 @@ import { useCanvasStore } from "@/store/canvasStore";
 
 interface Props {
   open: boolean;
-  onClose: () => void;
+  onClose: (confirmed: boolean) => void;
 }
 
 export default function GridResizeDialog({ open, onClose }: Props) {
@@ -23,7 +23,7 @@ export default function GridResizeDialog({ open, onClose }: Props) {
     const r = Math.max(1, Math.min(400, Math.floor(rows)));
     pushUndo();
     setGridSize(c, r);
-    onClose();
+    onClose(true);
   };
 
   const presets = [
@@ -51,7 +51,7 @@ export default function GridResizeDialog({ open, onClose }: Props) {
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={() => onClose(false)}
             className="text-sienna-500 hover:text-sienna-700"
           >
             <X className="w-5 h-5" />
@@ -126,7 +126,7 @@ export default function GridResizeDialog({ open, onClose }: Props) {
         </div>
 
         <div className="flex gap-2 mt-5">
-          <button onClick={onClose} className="stitch-btn flex-1 !py-2">
+          <button onClick={() => onClose(false)} className="stitch-btn flex-1 !py-2">
             取消
           </button>
           <button onClick={submit} className="stitch-btn-primary flex-1 !py-2">

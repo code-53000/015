@@ -41,7 +41,8 @@ export default function Toolbar({ onSave, onResize }: Props) {
   const selectedColor = useColorStore((s) => s.colors.find((c) => c.id === s.selectedColorId));
 
   const handleZoom = (factor: number) => {
-    setViewport({ scale: Math.max(2, Math.min(60, viewport.scale * factor)) });
+    const currentScale = useCanvasStore.getState().viewport.scale;
+    setViewport({ scale: Math.max(2, Math.min(60, currentScale * factor)) });
   };
 
   const tools = [
@@ -138,9 +139,11 @@ export default function Toolbar({ onSave, onResize }: Props) {
             if (!canvasEl) {
               fitViewport(window.innerWidth - 380, window.innerHeight - 160);
             } else {
-              const parent = canvasEl.parentElement;
+              const parent = canvasEl.closest(".stitch-canvas-target") as HTMLElement;
               if (parent) {
                 fitViewport(parent.clientWidth, parent.clientHeight);
+              } else {
+                fitViewport(window.innerWidth - 380, window.innerHeight - 160);
               }
             }
           }}

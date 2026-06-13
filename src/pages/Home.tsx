@@ -38,6 +38,7 @@ export default function Home() {
   const currentSchemeName = useCanvasStore((s) => s.currentSchemeName);
   const setSchemeMeta = useCanvasStore((s) => s.setSchemeMeta);
   const loadCells = useCanvasStore((s) => s.loadCells);
+  const fitViewport = useCanvasStore((s) => s.fitViewport);
 
   const colors = useColorStore((s) => s.colors);
 
@@ -165,7 +166,18 @@ export default function Home() {
 
       <GridResizeDialog
         open={showResize}
-        onClose={() => setShowResize(false)}
+        onClose={(confirmed) => {
+          setShowResize(false);
+          if (confirmed && canvasContainerRef.current) {
+            setTimeout(() => {
+              fitViewport(
+                canvasContainerRef.current!.clientWidth,
+                canvasContainerRef.current!.clientHeight,
+                40
+              );
+            }, 50);
+          }
+        }}
       />
 
       <SaveSchemeDialog

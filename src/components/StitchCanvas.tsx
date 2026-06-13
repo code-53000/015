@@ -34,7 +34,6 @@ export default function StitchCanvas() {
   }, [colors]);
 
   const scheduleRender = useCallback(() => {
-    if (rafRef.current) return;
     rafRef.current = requestAnimationFrame(() => {
       rafRef.current = null;
       const r = rendererRef.current;
@@ -68,6 +67,12 @@ export default function StitchCanvas() {
     window.addEventListener("resize", handleResize);
 
     scheduleRender();
+
+    setTimeout(() => {
+      const store = useCanvasStore.getState();
+      const rect = el.getBoundingClientRect();
+      store.fitViewport(rect.width, rect.height, 40);
+    }, 100);
 
     return () => {
       window.removeEventListener("resize", handleResize);
@@ -284,8 +289,3 @@ export default function StitchCanvas() {
     </div>
   );
 }
-
-export function useRendererRef() {
-  return rendererRef;
-}
-const rendererRef = { current: null as CanvasRenderer | null };
