@@ -2,6 +2,7 @@ import {
   Brush,
   Eraser,
   Pipette,
+  PaintBucket,
   Undo2,
   Redo2,
   Trash2,
@@ -36,7 +37,7 @@ export default function Toolbar({ onSave, onResize }: Props) {
   const showStitch = useCanvasStore((s) => s.showStitchMark);
   const setShowStitch = useCanvasStore((s) => s.setShowStitchMark);
   const schemeName = useCanvasStore((s) => s.currentSchemeName);
-  const saving = useCanvasStore((s) => null);
+  const saving = useCanvasStore(() => null);
 
   const selectedColor = useColorStore((s) => s.colors.find((c) => c.id === s.selectedColorId));
 
@@ -49,6 +50,7 @@ export default function Toolbar({ onSave, onResize }: Props) {
     { id: "brush" as const, icon: Brush, label: "画笔", shortcut: "B" },
     { id: "eraser" as const, icon: Eraser, label: "橡皮", shortcut: "E" },
     { id: "picker" as const, icon: Pipette, label: "吸管", shortcut: "I" },
+    { id: "fill" as const, icon: PaintBucket, label: "填充", shortcut: "G" },
   ];
 
   return (

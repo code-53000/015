@@ -25,6 +25,7 @@ interface CanvasState {
 
   paintCell: (col: number, row: number, colorId: string | null) => boolean;
   paintCells: (changes: { col: number; row: number; colorId: string | null }[]) => boolean;
+  fillArea: (startCol: number, startRow: number, colorId: string | null) => boolean;
   pushUndo: () => void;
   undo: () => void;
   redo: () => void;
@@ -103,6 +104,54 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
       newCells[row][col] = colorId;
       changed = true;
     }
+    if (changed) set({ cells: newCells });
+    return changed;
+  },
+
+  fillArea(startCol, startRow, colorId) {
+    const s = get();
+    const { cols, rows, cells } = s;
+    if (startCol < 0 || startCol >= cols || startRow < 0 || startRow >= rows) return false;
+
+    const targetColor = cells[startRow][startCol];
+    if (targetColor === colorId) return false;
+
+    const total = cols * rows;
+    const visited = new Uint8Array(total);
+    const newCells = cells.map((r) => r.slice());
+    const queue: number[] = [startRow * cols + startCol];
+    let changed = false;
+
+    while (queue.length > 0) {
+      const idx = queue.pop()!;
+      if (visited[idx]) continue;
+      visited[idx] = 1;
+
+      const r = (idx / cols) | 0;
+      const c = idx - r * cols;
+
+      if (newCells[r][c] !== targetColor) continue;
+      newCells[r][c] = colorId;
+      changed = true;
+
+      if (r > 0) {
+        const up = idx - cols;
+        if (!visited[up]) queue.push(up);
+      }
+      if (r < rows - 1) {
+        const down = idx + cols;
+        if (!visited[down]) queue.push(down);
+      }
+      if (c > 0) {
+        const left = idx - 1;
+        if (!visited[left]) queue.push(left);
+      }
+      if (c < cols - 1) {
+        const right = idx + 1;
+        if (!visited[right]) queue.push(right);
+      }
+    }
+
     if (changed) set({ cells: newCells });
     return changed;
   },

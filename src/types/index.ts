@@ -17,7 +17,7 @@ export interface UndoSnapshot {
   rows: number;
 }
 
-export type ToolMode = "brush" | "eraser" | "picker";
+export type ToolMode = "brush" | "eraser" | "picker" | "fill";
 
 export interface CanvasViewport {
   scale: number;

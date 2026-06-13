@@ -19,7 +19,7 @@ export default function StitchCanvas() {
   const rafRef = useRef<number | null>(null);
 
   const {
-    cols, rows, cells, viewport, tool,
+    cols, rows, cells, viewport,
     hoveredCell, showStitchMark,
     setViewport, setHoveredCell, paintCell, pushUndo,
   } = useCanvasStore();
@@ -176,6 +176,12 @@ export default function StitchCanvas() {
         }
         const state = useCanvasStore.getState();
         if (col >= 0 && col < state.cols && row >= 0 && row < state.rows) {
+          if (mode === "fill") {
+            const fillColorId = useColorStore.getState().selectedColorId ?? null;
+            pushUndo();
+            useCanvasStore.getState().fillArea(col, row, fillColorId);
+            return;
+          }
           pushUndo();
           isPaintingRef.current = true;
           lastPaintRef.current = { col, row };
@@ -248,6 +254,7 @@ export default function StitchCanvas() {
       if (e.code === "KeyB") useCanvasStore.getState().setTool("brush");
       if (e.code === "KeyE") useCanvasStore.getState().setTool("eraser");
       if (e.code === "KeyI") useCanvasStore.getState().setTool("picker");
+      if (e.code === "KeyG") useCanvasStore.getState().setTool("fill");
       if ((e.metaKey || e.ctrlKey) && e.code === "KeyZ" && !e.shiftKey) {
         e.preventDefault();
         useCanvasStore.getState().undo();
